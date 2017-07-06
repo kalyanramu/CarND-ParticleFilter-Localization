@@ -23,6 +23,12 @@ struct Particle {
 	std::vector<double> sense_y;
 };
 
+struct landmark
+{
+	int id;
+	double x;
+	double y;
+};
 
 
 class ParticleFilter {
@@ -102,6 +108,7 @@ public:
 	 * Set a particles list of associations, along with the associations calculated world x,y coordinates
 	 * This can be a very useful debugging tool to make sure transformations are correct and assocations correctly connected
 	 */
+	//This seems like associations for best particle & for debugging
 	Particle SetAssociations(Particle particle, std::vector<int> associations, std::vector<double> sense_x, std::vector<double> sense_y);
 	
 	std::string getAssociations(Particle best);
@@ -114,6 +121,9 @@ public:
 	const bool initialized() const {
 		return is_initialized;
 	}
+
+	//return closest landmark
+	landmark closestLandMarkPos(double x, double y, Map map_landmarks);
 };
 
 

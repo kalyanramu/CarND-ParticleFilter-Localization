@@ -3,6 +3,8 @@
 #include "json.hpp"
 #include <math.h>
 #include "particle_filter.h"
+#include <limits.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -25,9 +27,17 @@ std::string hasData(std::string s) {
   return "";
 }
 
+std::string getexepath()
+{
+  char result[ PATH_MAX ];
+  ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+  return std::string( result, (count > 0) ? count : 0 );
+}
+
 int main()
 {
   uWS::Hub h;
+  cout << "Start of the Program...." << endl;
 
   //Set up parameters here
   double delta_t = 0.1; // Time elapsed between measurements [sec]
@@ -36,9 +46,13 @@ int main()
   double sigma_pos [3] = {0.3, 0.3, 0.01}; // GPS measurement uncertainty [x [m], y [m], theta [rad]]
   double sigma_landmark [2] = {0.3, 0.3}; // Landmark measurement uncertainty [x [m], y [m]]
 
+  std::string path =getexepath();
+
+  cout << "Working path" << path << endl;
+
   // Read map data
   Map map;
-  if (!read_map_data("../data/map_data.txt", map)) {
+  if (!read_map_data("./data/map_data.txt", map)) {
 	  cout << "Error: Could not open map file" << endl;
 	  return -1;
   }
@@ -67,19 +81,20 @@ int main()
 
           if (!pf.initialized()) {
 
+          cout << "Start of init" << endl;
           	// Sense noisy position data from the simulator
-			double sense_x = std::stod(j[1]["sense_x"].get<std::string>());
-			double sense_y = std::stod(j[1]["sense_y"].get<std::string>());
-			double sense_theta = std::stod(j[1]["sense_theta"].get<std::string>());
+			    double sense_x = std::stod(j[1]["sense_x"].get<std::string>());
+          double sense_y = std::stod(j[1]["sense_y"].get<std::string>());
+			    double sense_theta = std::stod(j[1]["sense_theta"].get<std::string>());
 
-			pf.init(sense_x, sense_y, sense_theta, sigma_pos);
+			    pf.init(sense_x, sense_y, sense_theta, sigma_pos);
 		  }
 		  else {
 			// Predict the vehicle's next state from previous (noiseless control) data.
 		  	double previous_velocity = std::stod(j[1]["previous_velocity"].get<std::string>());
-			double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<std::string>());
+			  double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<std::string>());
 
-			pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
+			  pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
 		  }
 
 		  // receive noisy observation data from the simulator
@@ -106,8 +121,8 @@ int main()
         	{
         		LandmarkObs obs;
         		obs.x = x_sense[i];
-				obs.y = y_sense[i];
-				noisy_observations.push_back(obs);
+				    obs.y = y_sense[i];
+				    noisy_observations.push_back(obs);
         	}
 
 		  // Update the weights and resample
