@@ -132,3 +132,6 @@ The things the grading code is looking for are:
 2. **Performance**: your particle filter should complete execution within the time of 100 seconds.
 
 
+Tips to improve performance:
+1. While calculating weights: combine/add all the exponent terms then perform exponent calculation
+2. Do calculation of weights only on the particles with in range?
